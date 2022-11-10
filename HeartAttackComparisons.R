@@ -5,6 +5,7 @@ library(MASS)
 library(readr)
 library(caTools)
 library(dplyr)
+library(lightgbm)
 
 #Set seed and read data
 set.seed(1494)
@@ -22,13 +23,13 @@ heartdata[catcolumns] <- lapply(heartdata[catcolumns], factor)
 heartdata[contcolumns] <- scale(heartdata[contcolumns])
 
 #Test/Train split
-parts = createDataPartition(heartdf$output, p = 0.8, list = F)
-trainingdata = heartdata[parts, ]
-testdata = heartdata[-parts, ]
+parts <- createDataPartition(heartdf$output, p = 0.8, list = F)
+trainingdata <- heartdata[parts, ]
+testdata <- heartdata[-parts, ]
 
 #Splitting into predictor and response variables. Y labels are changed to yes/no due to caret
-trainx = data.matrix(trainingdata[,-14])
-trainy = factor(trainy, labels = c("yes","no"))
+trainx <- data.matrix(trainingdata[,-14])
+trainy <- factor(trainy, labels = c("yes","no"))
 
 testx = data.matrix(testdata[,-14])
 testy = factor(testy, labels = c("yes","no"))
@@ -55,8 +56,8 @@ model1 <- train(
 
 #Creating confusion matrix to test accuracy, sensitivity, and specificity
 
-xgbpred = predict(model1, newdata = testx)
-confusion = confusionMatrix(testy, xgbpred)
+xgbpred <- predict(model1, newdata = testx)
+confusion <- confusionMatrix(testy, xgbpred)
 confusion
 
 #Checking best param results
@@ -84,15 +85,15 @@ model2 <- train(
   verbose = TRUE
 )
 
-xgbpred2 = predict(model2, newdata = testx)
-confusion = confusionMatrix(testy, xgbpred2)
+xgbpred2 <- predict(model2, newdata = testx)
+confusion <- confusionMatrix(testy, xgbpred2)
 confusion
 
 #Accuracy in the confusion matrix increased significantly from 0.7667 to 0.85
 
 #Fitting the logistic regression model
 
-logmodel = glm(output ~ ., data = trainingdata, family =binomial(link = 'logit'))
+logmodel <- glm(output ~ ., data = trainingdata, family =binomial(link = 'logit'))
 logmodel
 
 #p-value is significant at the 0.05 level
@@ -112,3 +113,4 @@ accuracy
 #Accuracy for the linear model was found to be the same as the boosted model
 
 ##Will add other methods in the future 
+
